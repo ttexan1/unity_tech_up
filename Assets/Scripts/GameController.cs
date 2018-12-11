@@ -9,27 +9,26 @@ public class GameController : MonoBehaviour {
 
     public Text resultText;
     public Text[] rankingTexts = new Text[5];
-    int count = 0;
 
     // Use this for initialization
     void Start () {
         string playerName = PlayerPrefs.GetString("playerName");
         int score = (int)PlayerPrefs.GetFloat("scoreTime");
-        saveScoreRanking(playerName, score);
+        SaveScoreRanking(playerName, score);
         resultText.text = score.ToString();
-        Invoke("getScoreRanking", 1.5f);
+        Invoke("GetScoreRanking", 1.5f);
     }
 
 	// Update is called once per frame
 	void Update () {
     }
 
-    public void returnToGameScene(){
+    public void ReturnToGameScene(){
         SceneManager.LoadScene("Main");
     }
 
     // スコアセーブ
-    void saveScoreRanking(string playerName, int score){
+    void SaveScoreRanking(string playerName, int score){
         NCMBQuery<NCMBObject> query = new NCMBQuery<NCMBObject>("ScoreRanking"); // NCMB上のScoreRankingクラスを取得
         query.WhereEqualTo("playername", playerName); // プレイヤー名でデータを絞る
         query.FindAsync((List<NCMBObject> objList, NCMBException e) => {
@@ -56,35 +55,25 @@ public class GameController : MonoBehaviour {
     }
 
     // ランキング取得
-    void getScoreRanking(){
+    void GetScoreRanking(){
         NCMBQuery<NCMBObject> query = new NCMBQuery<NCMBObject>("ScoreRanking");
         query.OrderByDescending("score"); 
         query.Limit = rankingTexts.Length; 
         query.FindAsync((List<NCMBObject> objList, NCMBException e) => {
             if (e == null)
             { //検索成功したら
-                List<string> nameList = new List<string>();
-                List<int> scoreList = new List<int>();
                 for (int i = 0; i < objList.Count; i++)
                 {
                     string s = System.Convert.ToString(objList[i]["playername"]);
-                    int n = System.Convert.ToInt32(objList[i]["score"]);
-                    Debug.Log("===============");
-                    Debug.Log(s);
-                    Debug.Log(n);
-                    Debug.Log("===============");
+                    //int n = System.Convert.ToInt32(objList[i]["score"]);
                     rankingTexts[i].text = s;
-                    nameList.Add(s); // リストに突っ込む
-                    scoreList.Add(n);
                 }
-                Debug.Log(nameList);
-                Debug.Log(scoreList);
             }
         });
     }
 
     // プレーヤー名の存在確認/変更(使ってない)
-    void checkPlayerName(string playerName){
+    void CheckPlayerName(string playerName){
         NCMBQuery<NCMBObject> query = new NCMBQuery<NCMBObject>("ScoreRanking");
         query.WhereEqualTo("playername", playerName);
         query.CountAsync((int count, NCMBException e) => { // 1つ上のコードで絞られたデータが何個あるかかぞえる 
@@ -101,7 +90,7 @@ public class GameController : MonoBehaviour {
             }
         });
     }
-    void renamePlayerName(string previousName, string newName)
+    void RenamePlayerName(string previousName, string newName)
     {
         NCMBQuery<NCMBObject> query = new NCMBQuery<NCMBObject>("ScoreRanking");
         query.WhereEqualTo("playername", previousName); // 古い名前でデータを絞る
